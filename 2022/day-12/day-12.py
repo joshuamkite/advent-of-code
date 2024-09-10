@@ -29,6 +29,14 @@ class GridProcessor:
                     end = (i, j)
         return start, end
 
+    def find_lows(self):
+        lows = []
+        for i, row in enumerate(self.elevation_grid):
+            for j, val in enumerate(row):
+                if val == 0:
+                    lows.append([i, j])
+        return lows
+
     def map_elevations(self, grid):
         """
         create a dictionary where the keys are the lowercase letters 'a' to 'z', and the values are their corresponding integer elevations 0 to 25 with the ord() function, which gives the Unicode (ASCII) value of a character:
@@ -46,7 +54,18 @@ class GridProcessor:
 
         return elevation_grid
 
-    def find_path(self):
+    def find_path_part_1(self):
+        return self.find_path(self.start)
+
+    def find_path_part_2(self):
+        hiking_distance = []
+        for low in self.find_lows():
+            distance = self.find_path(low)
+            if distance is not None:
+                hiking_distance.append(distance)
+        return min(list(set(hiking_distance)))
+
+    def find_path(self, starting_point):
         """Use Dijkstra's algorithm:
 
         Initialization: Set the starting node’s distance to 0 and all other nodes' distances to infinity.
@@ -63,7 +82,7 @@ class GridProcessor:
         distances = [[float('inf')] * cols for _ in range(rows)]
 
         # Set the distance of the start node to 0
-        start_row, start_col = self.start
+        start_row, start_col = starting_point
         distances[start_row][start_col] = 0
 
         # Priority queue (min-heap): store (distance, row, col)
@@ -103,7 +122,10 @@ class GridProcessor:
 
 
 def main():
-    print(GridProcessor('./input.txt').find_path())
+    # print(GridProcessor('./input.txt').find_path())
+    # print(GridProcessor('./input.txt').find_lows())
+    print("Part 1:", GridProcessor('./input.txt').find_path_part_1())
+    print("Part 2:", GridProcessor('./input.txt').find_path_part_2())
 
 
 if __name__ == "__main__":
