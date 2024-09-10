@@ -103,10 +103,7 @@ class GridProcessor:
 
 
 def main():
-    grid_processor = GridProcessor('./input.txt')
-    # print(grid_processor.start, grid_processor.end)
-    # print(grid_processor.elevation_grid)
-    print(grid_processor.find_path())
+    print(GridProcessor('./input.txt').find_path())
 
 
 if __name__ == "__main__":
