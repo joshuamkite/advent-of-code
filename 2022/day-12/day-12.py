@@ -122,8 +122,6 @@ class GridProcessor:
 
 
 def main():
-    # print(GridProcessor('./input.txt').find_path())
-    # print(GridProcessor('./input.txt').find_lows())
     print("Part 1:", GridProcessor('./input.txt').find_path_part_1())
     print("Part 2:", GridProcessor('./input.txt').find_path_part_2())
 
