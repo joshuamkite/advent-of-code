@@ -21,10 +21,10 @@ I returned to this from September 2024, picking up where I left off, starting wi
 | [Day 9](https://adventofcode.com/2022/day/9)   | [day-09-pt1](./2022/day-09/day-09-pt1.py) | [day-09-pt2](./2022/day-09/day-09-pt2.py) |
 | [Day 10](https://adventofcode.com/2022/day/10) | [day-10](./2022/day-10/main.py) |
 | [Day 11](https://adventofcode.com/2022/day/11) | [day-11](./2022/day-11/main.py) |
+| [Day 12](https://adventofcode.com/2022/day/12) | [day-12](./2022/day-12) |
 
 To follow:
 
-| [Day 12](https://adventofcode.com/2022/day/12) | [day-12](./2022/day-12) |
 | [Day 13](https://adventofcode.com/2022/day/13) | [day-13](./2022/day-13) |
 | [Day 14](https://adventofcode.com/2022/day/14) | [day-14](./2022/day-14) |
 | [Day 15](https://adventofcode.com/2022/day/15) | [day-15](./2022/day-15) |
