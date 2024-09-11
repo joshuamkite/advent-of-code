@@ -124,8 +124,6 @@ print(f"Part 1 solution: {sum(correct_packets)}")
 # Instantiate the ListSorter class
 sorter = ListSorter(ordered_packets)
 
-# Sort the list
-sorted_lst = sorter.sort_by_first_int()
 
 # Find the index positions of [[[2]]] and [[[6]]]
 indices = sorter.find_indices_of_static_items()
