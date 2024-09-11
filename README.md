@@ -1,6 +1,6 @@
 # Google Advent of Code
 
-My attempts at Google 'Advent of Code'
+My Solutions for Google 'Advent of Code'
 
 ## 2022 (Python)
 
@@ -22,10 +22,9 @@ I returned to this from September 2024, picking up where I left off, starting wi
 | [Day 10](https://adventofcode.com/2022/day/10) | [day-10](./2022/day-10) |
 | [Day 11](https://adventofcode.com/2022/day/11) | [day-11](./2022/day-11) |
 | [Day 12](https://adventofcode.com/2022/day/12) | [day-12](./2022/day-12) |
-
-To follow:
-
 | [Day 13](https://adventofcode.com/2022/day/13) | [day-13](./2022/day-13) |
+
+To follow
 | [Day 14](https://adventofcode.com/2022/day/14) | [day-14](./2022/day-14) |
 | [Day 15](https://adventofcode.com/2022/day/15) | [day-15](./2022/day-15) |
 | [Day 16](https://adventofcode.com/2022/day/16) | [day-16](./2022/day-16) |
