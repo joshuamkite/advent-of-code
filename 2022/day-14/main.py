@@ -15,9 +15,10 @@ def parse_input(file_path):
     return paths
 
 
-def determine_grid_size(paths, source_x=500, source_y=0):
+def determine_grid_size(paths, source_x=500, source_y=0, add_floor=False):
     """
     Determines the minimum and maximum x and y values to set grid boundaries.
+    If add_floor is True, extends the grid to include the floor.
     """
     min_x = min(min(x for x, y in path) for path in paths)
     max_x = max(max(x for x, y in path) for path in paths)
@@ -29,6 +30,18 @@ def determine_grid_size(paths, source_x=500, source_y=0):
     max_x = max(max_x, source_x)
     min_y = min(min_y, source_y)
     max_y = max(max_y, source_y)
+
+    if add_floor:
+        # Floor is at y = max_y + 2
+        floor_y = max_y + 2
+        max_y = floor_y  # Extend the grid to include the floor
+
+        # To prevent sand from overflowing left/right, add buffer based on floor_y
+        # Since floor is infinite, sand can spread outwards as much as needed
+        # We'll add a buffer proportional to floor_y to accommodate spread
+        buffer = floor_y * 2  # Adjust as necessary
+        min_x -= buffer
+        max_x += buffer
 
     return min_x, max_x, min_y, max_y
 
@@ -69,6 +82,17 @@ def draw_rocks(grid, paths, min_x, min_y):
                     grid[y][x - min_x] = '#'
 
 
+def draw_floor(grid, min_x, min_y, floor_y):
+    """
+    Draws the floor '#' on the grid at the specified floor_y.
+    """
+    y = floor_y - min_y
+    if y >= len(grid):
+        raise IndexError(f"Floor y-coordinate {floor_y} is outside the grid height {len(grid)}.")
+    for x in range(len(grid[y])):
+        grid[y][x] = '#'
+
+
 def print_grid(grid):
     """
     Prints the grid to the console.
@@ -77,7 +101,7 @@ def print_grid(grid):
         print("".join(row))
 
 
-def simulate_sand_falling(cave, source_x, source_y, min_x, min_y):
+def simulate_sand_falling_part1(cave, source_x, source_y, min_x, min_y):
     """
     Simulates sand falling until a unit falls into the abyss.
     Returns the number of sand units that come to rest.
@@ -92,7 +116,7 @@ def simulate_sand_falling(cave, source_x, source_y, min_x, min_y):
 
         # Check if the source is already blocked
         if cave[y][x] != '+' and cave[y][x] != '.':
-            # Source is blocked; simulation ends
+            # Source is blocked; simulation ends (Not applicable for Part 1)
             return sand_count
 
         while True:
@@ -132,41 +156,139 @@ def simulate_sand_falling(cave, source_x, source_y, min_x, min_y):
                     break  # Start simulating the next unit of sand
 
 
-def simulate_sand_in_cave(cave, min_x, min_y):
+def simulate_sand_falling_part2(cave, source_x, source_y, min_x, min_y, floor_y):
     """
-    Simulates the sand falling process and returns the count of sand units at rest.
+    Simulates sand falling with a floor until the source is blocked.
+    Returns the number of sand units that come to rest.
+    """
+    width = len(cave[0])
+    height = len(cave)
+    sand_count = 0
+
+    while True:
+        # Start sand at the source
+        x, y = source_x - min_x, source_y - min_y
+
+        # Check if the source is already blocked
+        if cave[y][x] == 'o':
+            # Source is blocked; simulation ends
+            return sand_count
+
+        while True:
+            # If y + 1 is the floor level, sand comes to rest
+            if y + 1 == floor_y - min_y:
+                cave[y][x] = 'o'
+                sand_count += 1
+                break
+
+            # Check if the space directly below is empty
+            if cave[y + 1][x] == '.':
+                y += 1  # Move down
+            else:
+                moved = False
+
+                # Attempt to move down-left
+                if x - 1 >= 0 and cave[y + 1][x - 1] == '.':
+                    y += 1
+                    x -= 1  # Move down-left
+                    moved = True
+
+                # Attempt to move down-right
+                if not moved and x + 1 < width and cave[y + 1][x + 1] == '.':
+                    y += 1
+                    x += 1  # Move down-right
+                    moved = True
+
+                if not moved:
+                    # Sand comes to rest when all three options are blocked
+                    cave[y][x] = 'o'
+                    sand_count += 1
+                    break  # Start simulating the next unit of sand
+
+
+def simulate_sand_in_cave_part1(cave, min_x, min_y):
+    """
+    Simulates the sand falling process for Part One and returns the count of sand units at rest.
     """
     # Assuming the sand source is at (500, 0)
     source_x = 500
     source_y = 0
 
     # Simulate sand falling and return the number of units that come to rest
-    return simulate_sand_falling(cave, source_x, source_y, min_x, min_y)
+    return simulate_sand_falling_part1(cave, source_x, source_y, min_x, min_y)
+
+
+def simulate_sand_in_cave_part2(cave, min_x, min_y, floor_y):
+    """
+    Simulates the sand falling process for Part Two and returns the count of sand units at rest.
+    """
+    # Assuming the sand source is at (500, 0)
+    source_x = 500
+    source_y = 0
+
+    # Simulate sand falling with floor and return the number of units that come to rest
+    return simulate_sand_falling_part2(cave, source_x, source_y, min_x, min_y, floor_y)
 
 
 def main():
     file_path = 'input.txt'  # Path to the input file
     paths = parse_input(file_path)
 
-    # Step 1: Determine grid size based on paths and source
-    min_x, max_x, min_y, max_y = determine_grid_size(paths)
+    # ================================
+    # Part One Simulation
+    # ================================
 
-    # Step 2: Initialize an empty grid without adding walls
-    grid = initialize_grid(min_x, max_x, min_y, max_y)
+    # Step 1: Determine grid size based on paths and source (Part One)
+    min_x1, max_x1, min_y1, max_y1 = determine_grid_size(paths, add_floor=False)
 
-    # Step 3: Place the sand source at (500, 0) adjusted for the grid
-    place_source(grid, 500, 0, min_x, min_y)
+    # Step 2: Initialize an empty grid for Part One
+    grid_part1 = initialize_grid(min_x1, max_x1, min_y1, max_y1)
 
-    # Step 4: Draw rocks based on the paths
-    draw_rocks(grid, paths, min_x, min_y)
+    # Step 3: Place the sand source at (500, 0) adjusted for the grid (Part One)
+    place_source(grid_part1, 500, 0, min_x1, min_y1)
 
-    # Step 5: Simulate sand falling and count how many units come to rest
-    sand_units = simulate_sand_in_cave(grid, min_x, min_y)
-    print(f"Number of units of sand that come to rest: {sand_units}")
+    # Step 4: Draw rocks based on the paths (Part One)
+    draw_rocks(grid_part1, paths, min_x1, min_y1)
 
-    # Optionally, print the grid after sand has settled
-    # Note: For large inputs, printing the grid can be impractical
-    print_grid(grid)
+    # Step 5: Simulate sand falling for Part One and count how many units come to rest
+    sand_units_part1 = simulate_sand_in_cave_part1(grid_part1, min_x1, min_y1)
+    print(f"Part One - Number of units of sand that come to rest: {sand_units_part1}")
+
+    # Optional: Uncomment to visualize Part One grid
+    # print("\nPart One Grid:")
+    # print_grid(grid_part1)
+
+    # ================================
+    # Part Two Simulation
+    # ================================
+
+    # Step 1: Determine grid size based on paths and source (Part Two)
+    min_x2, max_x2, min_y2, max_y2 = determine_grid_size(paths, add_floor=True)
+    floor_y = max_y2  # Correct calculation: floor_y is already set to max_y + 2 in determine_grid_size
+
+    # Step 2: Initialize an empty grid for Part Two
+    grid_part2 = initialize_grid(min_x2, max_x2, min_y2, max_y2)
+
+    # Step 3: Place the sand source at (500, 0) adjusted for the grid (Part Two)
+    place_source(grid_part2, 500, 0, min_x2, min_y2)
+
+    # Step 4: Draw rocks based on the paths (Part Two)
+    draw_rocks(grid_part2, paths, min_x2, min_y2)
+
+    # Step 5: Draw the floor on the grid (Part Two)
+    try:
+        draw_floor(grid_part2, min_x2, min_y2, floor_y)
+    except IndexError as e:
+        print(f"Error drawing floor: {e}")
+        return
+
+    # Step 6: Simulate sand falling for Part Two and count how many units come to rest
+    sand_units_part2 = simulate_sand_in_cave_part2(grid_part2, min_x2, min_y2, floor_y)
+    print(f"Part Two - Number of units of sand that come to rest: {sand_units_part2}")
+
+    # Optional: Uncomment to visualize Part Two grid
+    # print("\nPart Two Grid:")
+    print_grid(grid_part2)
 
 
 if __name__ == "__main__":
