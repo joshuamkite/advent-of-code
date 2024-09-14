@@ -288,7 +288,7 @@ def main():
 
     # Optional: Uncomment to visualize Part Two grid
     # print("\nPart Two Grid:")
-    print_grid(grid_part2)
+    # print_grid(grid_part2)
 
 
 if __name__ == "__main__":
