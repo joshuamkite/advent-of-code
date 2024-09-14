@@ -1,6 +1,7 @@
 import re
 from collections import deque
 import sys
+from functools import lru_cache
 
 
 def parse_input(file_path):
@@ -26,7 +27,7 @@ def parse_input(file_path):
     try:
         # Open and read the input file line by line.
         with open(file_path, 'r') as file:
-            for line in file:
+            for line_num, line in enumerate(file, 1):
                 line = line.strip()  # Remove leading/trailing whitespace.
                 if not line:
                     continue  # Skip empty lines.
@@ -42,15 +43,16 @@ def parse_input(file_path):
                     }
                 else:
                     # If a line doesn't match the expected pattern, print a warning.
-                    print(f"Line didn't match pattern and was skipped: {line}")
+                    print(f"Line {line_num} didn't match pattern and was skipped: {line}")
     except FileNotFoundError:
         # Handle the case where the input file does not exist.
         print(f"Error: The file '{file_path}' was not found.")
-        exit(1)
+        sys.exit(1)
     except Exception as e:
         # Handle any other exceptions that may occur during file reading/parsing.
         print(f"An error occurred while reading the file: {e}")
-        exit(1)
+        sys.exit(1)
+
     return valves
 
 
@@ -78,80 +80,23 @@ def bfs(start, graph):
     return visited
 
 
-def maximize_pressure(current_valve, time_elapsed, opened, memo, useful_valves, shortest_paths, time_limit):
-    """
-    Recursively explores all possible sequences of valve openings to maximize pressure release.
-
-    Utilizes memoization to cache and reuse results of previously computed states, enhancing efficiency.
-
-    Parameters:
-    - current_valve (str): The valve where the user is currently located.
-    - time_elapsed (int): Total time elapsed so far.
-    - opened (set): Set of valves that have been opened.
-    - memo (dict): Dictionary used for memoization to cache results of subproblems.
-    - useful_valves (dict): Dictionary of valves with positive flow rates.
-    - shortest_paths (dict): Precomputed shortest paths between valves.
-    - time_limit (int): Total time available (e.g., 30 minutes).
-
-    Returns:
-    - int: Maximum pressure that can be released from the current state onward.
-    """
-    # Create a unique key for the current state to use in memoization.
-    # The key consists of the current valve, time elapsed, and a sorted tuple of opened valves.
-    key = (current_valve, time_elapsed, tuple(sorted(opened)))
-    if key in memo:
-        # If the current state has already been computed, return the cached result.
-        return memo[key]
-
-    max_pressure = 0  # Initialize the maximum pressure for this state.
-
-    # Iterate through all useful valves to consider opening them next.
-    for valve, details in useful_valves.items():
-        if valve not in opened:
-            # Calculate the time required to move to this valve and open it.
-            time_to_valve = shortest_paths[current_valve].get(valve, float('inf'))
-            time_needed = time_to_valve + 1  # +1 minute to open the valve.
-            new_time = time_elapsed + time_needed  # Update the elapsed time.
-
-            if new_time < time_limit:
-                # If there's still time left after opening the valve, calculate the pressure it will release.
-                remaining_time = time_limit - new_time
-                pressure = details['flow_rate'] * remaining_time
-
-                # Recursively explore the next steps from the new state.
-                total_pressure = pressure + maximize_pressure(
-                    valve,
-                    new_time,
-                    opened | {valve},  # Add the current valve to the set of opened valves.
-                    memo,
-                    useful_valves,
-                    shortest_paths,
-                    time_limit
-                )
-
-                # Update the maximum pressure if the current path yields a higher value.
-                if total_pressure > max_pressure:
-                    max_pressure = total_pressure
-
-    # Cache the result for the current state to avoid redundant computations.
-    memo[key] = max_pressure
-    return max_pressure
-
-
 def main():
     """
     The main function orchestrates the reading of input, processing of data, and computation of the maximum pressure release.
+    It handles both Part One and Part Two of the challenge.
 
     Steps:
     1. Parse the input file to extract valve information.
     2. Identify useful valves (those with a positive flow rate).
-    3. Precompute shortest paths between all relevant valves using BFS.
-    4. Handle unreachable useful valves by excluding them from consideration.
-    5. Use DFS with memoization to find the optimal sequence of valve openings.
-    6. Output the maximum total pressure that can be released.
+    3. Assign each useful valve a unique bit position.
+    4. Precompute shortest paths between all relevant valves using BFS.
+    5. Use DFS with memoization to find the optimal sequence of valve openings for Part One.
+    6. Collect maximum pressures for all subsets of valves for Part Two.
+    7. Combine the results of two actors (you and the elephant) to find the maximum total pressure for Part Two.
+    8. Output the results for both parts.
     """
 
-    input_file = 'input.txt'
+    input_file = 'input.txt'  # Specify the input file path.
 
     # Step 1: Parse the input file to obtain the valves dictionary.
     valves = parse_input(input_file)
@@ -163,7 +108,12 @@ def main():
         print("No useful valves found (all have flow rate=0). Nothing to do.")
         return
 
-    # Step 3: Precompute shortest paths between all relevant valves.
+    # Step 3: Assign each useful valve a unique bit position.
+    valve_indices = {valve: idx for idx, valve in enumerate(useful_valves)}
+    # For debugging purposes, you can print the valve indices.
+    # print("Valve Indices:", valve_indices)
+
+    # Step 4: Precompute shortest paths between all relevant valves.
     # Relevant valves include all useful valves plus the starting valve 'AA'.
     all_relevant = list(useful_valves.keys()) + ['AA']
     shortest_paths = {}
@@ -175,29 +125,113 @@ def main():
             # Warn if a relevant valve is not found in the valves dictionary.
             print(f"Warning: Valve '{valve}' not found in the valves dictionary.")
 
-    # Step 4: Verify that all useful valves are reachable from 'AA'.
-    # Remove any useful valves that cannot be reached from 'AA'.
-    unreachable_valves = [valve for valve in useful_valves if valve not in shortest_paths.get('AA', {})]
-    if unreachable_valves:
-        print(f"Warning: The following useful valves are not reachable from 'AA' and will be ignored: {unreachable_valves}")
-        for valve in unreachable_valves:
-            del useful_valves[valve]
+    # Ensure that 'AA' is present in the shortest paths.
+    if 'AA' not in shortest_paths:
+        print("Error: Starting valve 'AA' not found in the shortest paths.")
+        sys.exit(1)
 
-    # Step 5: Optimize the valve opening sequence using DFS with memoization.
-    memo = {}  # Initialize the memoization dictionary.
-    time_limit = 30  # Total time available in minutes.
-    max_total_pressure = maximize_pressure(
-        current_valve='AA',     # Starting at valve 'AA'.
-        time_elapsed=0,         # No time has elapsed at the start.
-        opened=set(),           # No valves have been opened yet.
-        memo=memo,
-        useful_valves=useful_valves,
-        shortest_paths=shortest_paths,
-        time_limit=time_limit
-    )
+    # Step 5: Use DFS with memoization to find the optimal sequence of valve openings for Part One.
+    # We'll use bitmasking to represent opened valves.
 
-    # Step 6: Output the result.
-    print(f"Maximum Total Pressure Released: {max_total_pressure}")
+    @lru_cache(maxsize=None)
+    def dfs(current_valve, time_elapsed, opened_bitmask):
+        """
+        Recursively explores all possible sequences of valve openings to maximize pressure release.
+
+        Utilizes memoization to cache and reuse results of previously computed states, enhancing efficiency.
+
+        Parameters:
+        - current_valve (str): The valve where the user is currently located.
+        - time_elapsed (int): Total time elapsed so far.
+        - opened_bitmask (int): Bitmask representing the set of opened valves.
+
+        Returns:
+        - int: Maximum pressure that can be released from the current state onward.
+        """
+        max_pressure = 0
+
+        for valve, details in useful_valves.items():
+            bit = 1 << valve_indices[valve]
+            if not (opened_bitmask & bit):
+                # Calculate the time required to move to this valve and open it.
+                time_to_valve = shortest_paths[current_valve].get(valve, float('inf'))
+                time_needed = time_to_valve + 1  # +1 minute to open the valve.
+                new_time = time_elapsed + time_needed
+
+                if new_time < 30:
+                    # Calculate the pressure released by opening this valve.
+                    remaining_time = 30 - new_time
+                    pressure = details['flow_rate'] * remaining_time
+
+                    # Recursively explore further openings.
+                    total_pressure = pressure + dfs(valve, new_time, opened_bitmask | bit)
+
+                    if total_pressure > max_pressure:
+                        max_pressure = total_pressure
+
+        return max_pressure
+
+    # Calculate Part One
+    part_one_result = dfs('AA', 0, 0)
+    print(f"Part One: {part_one_result}")
+
+    # Step 6: For Part Two, compute the maximum pressure achievable by two actors without overlapping valves.
+    # We'll iterate through all possible subsets, calculate their pressures, and find the best pair of disjoint subsets.
+
+    # Initialize a dictionary to store maximum pressure for each subset.
+    max_pressures = {}
+
+    def dfs_part2(current_valve, time_elapsed, opened_bitmask, pressure):
+        """
+        DFS function for Part Two that records maximum pressure for each subset of opened valves.
+
+        Parameters:
+        - current_valve (str): Current valve position.
+        - time_elapsed (int): Time elapsed so far.
+        - opened_bitmask (int): Bitmask of opened valves.
+        - pressure (int): Current accumulated pressure.
+
+        Updates:
+        - max_pressures (dict): Updates the maximum pressure for the current subset.
+        """
+        # If the current subset has a higher pressure, update it.
+        if opened_bitmask not in max_pressures or pressure > max_pressures[opened_bitmask]:
+            max_pressures[opened_bitmask] = pressure
+
+        for valve, details in useful_valves.items():
+            bit = 1 << valve_indices[valve]
+            if not (opened_bitmask & bit):
+                # Calculate the time required to move to this valve and open it.
+                time_to_valve = shortest_paths[current_valve].get(valve, float('inf'))
+                time_needed = time_to_valve + 1  # +1 minute to open the valve.
+                new_time = time_elapsed + time_needed
+
+                if new_time < 26:
+                    # Calculate the pressure released by opening this valve.
+                    remaining_time = 26 - new_time
+                    new_pressure = details['flow_rate'] * remaining_time
+
+                    # Recursively explore further openings.
+                    dfs_part2(valve, new_time, opened_bitmask | bit, pressure + new_pressure)
+
+    # Start DFS for Part Two.
+    dfs_part2('AA', 0, 0, 0)
+
+    # Step 7: Combine the results of two actors to find the maximum total pressure.
+    max_total_pressure_part2 = 0
+    all_bitmasks = list(max_pressures.keys())
+
+    for i, bitmask1 in enumerate(all_bitmasks):
+        pressure1 = max_pressures[bitmask1]
+        for bitmask2 in all_bitmasks[i:]:  # Start from i to avoid duplicate pairs.
+            if bitmask1 & bitmask2 == 0:
+                pressure2 = max_pressures[bitmask2]
+                total_pressure = pressure1 + pressure2
+                if total_pressure > max_total_pressure_part2:
+                    max_total_pressure_part2 = total_pressure
+
+    # Output the result for Part Two.
+    print(f"Part Two: {max_total_pressure_part2}")
 
 
 # Entry point of the script.
