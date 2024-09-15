@@ -147,13 +147,32 @@ def maximize_geodes(blueprint, time_limit=24):
 
 def main():
     blueprints = parse_input("input.txt")
-    total_quality = 0
+
+    # Part 1: Calculate total quality level for all blueprints with a 24-minute limit
+    time_limit_part1 = 24
+    total_quality_level = 0
+
     for bp_id, blueprint in blueprints.items():
-        geodes = maximize_geodes(blueprint, time_limit=24)
-        quality_level = bp_id * geodes
-        print(f"Blueprint {bp_id}: Geodes = {geodes}, Quality Level = {quality_level}")
-        total_quality += quality_level
-    print(f"Total Quality Level: {total_quality}")
+        max_geodes = maximize_geodes(blueprint, time_limit_part1)
+        quality_level = bp_id * max_geodes
+        print(f"Blueprint {bp_id} (24 min): Geodes = {max_geodes}, Quality Level = {quality_level}")
+        total_quality_level += quality_level
+
+    print(f"Part 1: Total Quality Level = {total_quality_level}")
+
+    # Part 2: Only consider the first three blueprints with a 32-minute limit
+    max_geodes_results = []
+    time_limit_part2 = 32
+
+    for bp_id in range(1, 4):  # Only the first three blueprints
+        blueprint = blueprints[bp_id]
+        max_geodes = maximize_geodes(blueprint, time_limit_part2)
+        print(f"Blueprint {bp_id} (32 min): Max Geodes = {max_geodes}")
+        max_geodes_results.append(max_geodes)
+
+    # Multiply the maximum geodes from the first three blueprints for Part 2
+    part2_result = max_geodes_results[0] * max_geodes_results[1] * max_geodes_results[2]
+    print(f"Part 2: Product of Geodes (First 3 Blueprints) = {part2_result}")
 
 
 if __name__ == "__main__":
