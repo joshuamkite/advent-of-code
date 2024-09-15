@@ -29,10 +29,10 @@ I returned to this from September 2024, picking up where I left off, starting wi
 | [Day 17](https://adventofcode.com/2022/day/17) | [day-17](./2022/day-17) |
 | [Day 18](https://adventofcode.com/2022/day/18) | [day-18](./2022/day-18) |
 | [Day 19](https://adventofcode.com/2022/day/19) | [day-19](./2022/day-19) |
+| [Day 20](https://adventofcode.com/2022/day/20) | [day-20](./2022/day-20) |
 
 To follow
 
-| [Day 20](https://adventofcode.com/2022/day/20) | [day-20](./2022/day-20) |
 | [Day 21](https://adventofcode.com/2022/day/21) | [day-21](./2022/day-21) |
 | [Day 22](https://adventofcode.com/2022/day/22) | [day-22](./2022/day-22) |
 | [Day 23](https://adventofcode.com/2022/day/23) | [day-23](./2022/day-23) |
