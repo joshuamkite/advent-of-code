@@ -175,6 +175,29 @@ class Chamber:
             return False
         return True
 
+    def get_chamber_profile(self, depth=30):
+        """
+        Captures the top 'depth' rows of the chamber to create a profile.
+
+        Parameters:
+        - depth: Number of top rows to include in the profile.
+
+        Returns:
+        - Tuple representing the relative heights of each column.
+        """
+        profile = []
+        for x in range(self.width):
+            # Find the highest rock in this column
+            column_heights = [y for (col_x, y) in self.occupied if col_x == x]
+            if column_heights:
+                max_y = max(column_heights)
+            else:
+                max_y = -1  # No rocks in this column
+            # Calculate the relative height from the top
+            relative_height = self.highest_y - max_y
+            profile.append(relative_height)
+        return tuple(profile)
+
     def simulate_fall(self, rock_shapes, total_rocks):
         """
         Simulates the falling of rocks in the chamber.
@@ -184,10 +207,16 @@ class Chamber:
         - total_rocks: Number of rocks to simulate.
 
         Returns:
-        - None
+        - Final tower height after simulation.
         """
         rock_count = 0
         shape_index = 0
+
+        # Dictionary to store seen states
+        # Key: (shape_index % len(rock_shapes), jet_index % len(jet_sequence), chamber_profile)
+        # Value: (rock_count, highest_y)
+        seen_states = {}
+        additional_height = 0  # Height gained from cycles
 
         while rock_count < total_rocks:
             # Spawn a new rock based on the current shape in sequence
@@ -210,11 +239,34 @@ class Chamber:
                     rock_count += 1
                     break
 
-            # Optional: Visualize the chamber after each rock settles
-            # self.visualize()
+            # After the rock has settled, capture the current state
+            state_key = (
+                shape_index % len(rock_shapes),
+                self.jet_index % len(self.jet_sequence),
+                self.get_chamber_profile()
+            )
 
-        print(f"Simulation complete. Total rocks: {rock_count}")
-        print(f"Final Tower Height: {self.highest_y + 1}")  # +1 to account for zero indexing
+            if state_key in seen_states and rock_count < total_rocks:
+                # Cycle detected
+                previous_rock_count, previous_height = seen_states[state_key]
+                cycle_length = rock_count - previous_rock_count
+                cycle_height = self.highest_y - previous_height
+
+                # Calculate how many cycles can fit into the remaining rocks
+                remaining_rocks = total_rocks - rock_count
+                cycles = remaining_rocks // cycle_length
+
+                if cycles > 0:
+                    # Apply the cycle height and increment the rock count accordingly
+                    additional_height += cycles * cycle_height
+                    rock_count += cycles * cycle_length
+            else:
+                # Store the state
+                seen_states[state_key] = (rock_count, self.highest_y)
+
+        # Total height is the current highest_y plus any additional height from cycles
+        total_height = self.highest_y + 1 + additional_height  # +1 to account for zero indexing
+        return total_height  # Return the final tower height
 
     def visualize(self, current_rock=None):
         """
@@ -253,8 +305,8 @@ def main():
     with open('input.txt', 'r') as file:
         jet_sequence = list(file.read().strip())
 
-    # Print the jet sequence
-    print("Jet Sequence:", ''.join(jet_sequence))
+    # Print the jet sequence (Optional: Comment out if not needed)
+    # print("Jet Sequence:", ''.join(jet_sequence))
 
     # Coordinate tuples for falling rock shapes
     horizontal_line = [(0, 0), (1, 0), (2, 0), (3, 0)]
@@ -265,28 +317,37 @@ def main():
 
     rock_shapes = [horizontal_line, plus_sign, reverse_l, vertical_line, square]
 
-    # Optional: Visualize each rock shape individually for debugging
-    print("\nIndividual Rock Shapes:")
-    for idx, shape in enumerate(rock_shapes, start=1):
-        print(f"\nRock {idx}:")
-        rock = Rock(shape, (0, 0))
-        rock.visualize_shape()
+    # Optional: Visualize each rock shape individually for debugging (Comment out if not needed)
+    # print("\nIndividual Rock Shapes:")
+    # for idx, shape in enumerate(rock_shapes, start=1):
+    #     print(f"\nRock {idx}:")
+    #     rock = Rock(shape, (0, 0))
+    #     rock.visualize_shape()
 
     # Initialize the chamber
     chamber = Chamber(jet_sequence)
 
-    # Define total number of rocks to simulate
-    total_rocks_to_simulate = 2022
+    # -----------------------------
+    # Part 1: Simulate 2022 Rocks
+    # -----------------------------
+    total_rocks_to_simulate_part1 = 2022
+    part1_height = chamber.simulate_fall(rock_shapes, total_rocks_to_simulate_part1)
 
-    # Run the simulation
-    chamber.simulate_fall(rock_shapes, total_rocks_to_simulate)
+    # Print final tower height for Part 1
+    print(f"part1: {part1_height}")
 
-    # Final visualization (optional)
-    print("\nFinal Chamber State:")
-    chamber.visualize()
+    # -----------------------------
+    # Part 2: Simulate 1000000000000 Rocks
+    # -----------------------------
+    total_rocks_to_simulate_part2 = 1000000000000
 
-    # Print final tower height
-    print(f"\nFinal Tower Height after {total_rocks_to_simulate} rocks: {chamber.highest_y + 1}")
+    # Reset chamber for Part 2
+    chamber = Chamber(jet_sequence)
+
+    part2_height = chamber.simulate_fall(rock_shapes, total_rocks_to_simulate_part2)
+
+    # Print final tower height for Part 2
+    print(f"part2: {part2_height}")
 
 
 if __name__ == "__main__":
