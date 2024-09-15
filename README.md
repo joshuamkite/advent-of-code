@@ -1,12 +1,12 @@
 # Google Advent of Code
 
-My Solutions for Google 'Advent of Code'
+My Solutions for Google 'Advent of Code'. LLM acceleration is presumed.
 
 ## 2022 (Python)
 
 Days 01 thru 09 were attempted in June-July 2023 when I was at a much more basic skill level in Python and are included here for completeness only. Credit is given to others on whom some of these solutions were based. Most of these have separate solutions for part1 and part2.
 
-I returned to this from September 2024, picking up where I left off, starting with Day 10. These solutions are designed/architected before coding, and aren't directly based on existing solutions to the exact same challenges. 
+I returned to this from September 2024, picking up where I left off, starting with Day 10. These solutions are designed/architected before coding, and aren't directly based on specific existing solutions to the exact same challenges. 
 
 | Brief | Solution | 
 | ----- | --------- |

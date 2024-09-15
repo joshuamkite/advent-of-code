@@ -38,8 +38,25 @@ def mix(data: list) -> list:
     # [1, 2, -3, 4, 0, 3, -2]
 
 
+def find_items(data: list) -> list:
+    """
+        Then, the grove coordinates can be found by looking at the 1000th, 2000th, and 3000th numbers after the value 0, wrapping around the list as necessary. In the above example, the 1000th number after 0 is 4, the 2000th is -3, and the 3000th is 2; adding these together produces 3.
+    """
+    length = len(data)
+    grove_coordinates = []
+    index_of_zero = data.index(0)  # Find the index of 0 in the list
+
+    for i in [(index_of_zero + 1000), (index_of_zero + 2000), (index_of_zero + 3000)]:  # Find the 1000th, 2000th, and 3000th numbers after the value 0
+        index = i % length  # Wrap around the list as necessary by using modulo
+        grove_coordinates.append(data[index])
+    return grove_coordinates
+
+
 def main():
-    print(mix(read_input('test.txt')))
+    # print(read_input('test.txt'))
+    # print(mix(read_input('test.txt')))
+    mixed_items = (find_items(mix(read_input('input.txt'))))
+    print("Part 1 solution:",  sum(mixed_items))
 
 
 if __name__ == "__main__":
