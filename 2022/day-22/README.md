@@ -14,4 +14,4 @@ but there were various problems with the code, e.g. wrapping behaviour. LLM advi
 
 Which gave a correct result for Part 1
 
-For Part 2 I could barely understand the explanations, still less attempt a solution. I wound up taking this wholesale from https://coeleveld.com/2022-advent-of-code-python/ It is not my own work!
+For Part 2 I could barely understand the explanations, still less attempt a solution. I am clearly [not alone in finding this challenge tricky](https://www.reddit.com/r/adventofcode/comments/zsct8w/2022_day_22_solutions/) I wound up taking this wholesale from https://coeleveld.com/2022-advent-of-code-python/ **It is not my own work!**
