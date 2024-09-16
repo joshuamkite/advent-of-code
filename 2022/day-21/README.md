@@ -1,0 +1,1 @@
+In this challenge I designed and implemented the initial data structure into which to parse the input. I then chipped away at the calculation logic to get the correct result.
