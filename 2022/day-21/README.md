@@ -1,1 +1,3 @@
-In this challenge I designed and implemented the initial data structure into which to parse the input. I then chipped away at the calculation logic to get the correct result.
+In this challenge I designed and implemented the initial data structure into which to parse the input. I then chipped away at the calculation logic to get the correct result for Part 1.
+
+Part 2 was more challenging. I felt lazy and intially asked ChatGPT for a solution but it wanted to use a brute force approach and also to parse the input file twice. I opted to parse input once and copy. Brute force is not practical for this problem - we need to reverse operations and backtrack dependencies to establish our target value. With this approach we need various boundary checks to avoid backtracking redundant paths or attempting to backtrack where there is no earlier dependency.
