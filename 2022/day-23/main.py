@@ -119,8 +119,8 @@ class ElfSimulation:
                     row.append('#')  # Elf present
                 else:
                     row.append('.')  # Empty ground
-            # print("".join(row))  # Print the row as a string
-        # print()  # Add an empty line for spacing between rounds
+            print("".join(row))  # Print the row as a string
+        print()  # Add an empty line for spacing between rounds
 
     def run_simulation(self, max_rounds=1000, print_map=False):
         for i in range(max_rounds):
@@ -157,4 +157,4 @@ if __name__ == "__main__":
 
     # Debug: Print final state
     # print("Final state:")
-    simulation.print_map()
+    # simulation.print_map()
