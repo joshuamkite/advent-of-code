@@ -23,8 +23,16 @@ class ElfSimulation:
         ]
 
     def propose_move(self, elf):
-        """Propose a valid move based on the direction priority."""
+        """
+        For a given elf, check the surrounding neighbors and propose a valid move
+        based on the direction priority.
+        """
         x, y = elf
+        neighbors = self.get_neighbors(x, y)
+        # Only consider moving if there are other elves in neighboring cells
+        if not any(neighbor in self.elf_coordinates for neighbor in neighbors):
+            return elf  # No need to move if no neighbors
+
         for direction in self.directions:
             if direction == 'N':
                 if all((x - 1, y + i) not in self.elf_coordinates for i in [-1, 0, 1]):
@@ -108,5 +116,5 @@ class ElfSimulation:
 
 
 if __name__ == "__main__":
-    simulation = ElfSimulation('test.txt')
+    simulation = ElfSimulation('input.txt')
     simulation.run_simulation(10)
