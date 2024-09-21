@@ -1,6 +1,11 @@
 class ElfSimulation:
     def __init__(self, file_path):
+        self.file_path = file_path
         self.elf_coordinates = self.parse_input(file_path)
+        self.directions = ['N', 'S', 'W', 'E']
+
+    def reset(self):
+        self.elf_coordinates = self.parse_input(self.file_path)
         self.directions = ['N', 'S', 'W', 'E']
 
     def parse_input(self, file_path):
@@ -9,8 +14,8 @@ class ElfSimulation:
         elf_coordinates = set()  # Initialize as a set
         with open(file_path, "r") as file:
             for i, line in enumerate(file):
-                for j in range(len(line.strip())):
-                    if line[j] == '#':
+                for j, char in enumerate(line.strip()):
+                    if char == '#':
                         elf_coordinates.add((i, j))
         return elf_coordinates
 
@@ -51,10 +56,15 @@ class ElfSimulation:
     def simulate_round(self):
         """Simulate one round of movement."""
         proposals = {}  # Track proposed moves
+        any_moves = False  # Flag to track if any moves are proposed
 
         # First half: propose moves
         for elf in self.elf_coordinates:
             proposed_move = self.propose_move(elf)
+            if proposed_move != elf:  # If there's a proposed move
+                any_moves = True  # At least one move was proposed
+                # print(f"Elf at {elf} proposes move to {proposed_move}")  # Debug print
+
             if proposed_move not in proposals:
                 proposals[proposed_move] = [elf]
             else:
@@ -66,12 +76,19 @@ class ElfSimulation:
             if len(elves) == 1:  # No conflict, move the Elf
                 new_elf_coordinates.add(move)
             else:  # Conflict, all Elves stay in place
+                # print(f"Conflict for move to {move} by elves {elves}")  # Debug print
                 new_elf_coordinates.update(elves)
 
         # Rotate directions for the next round
         self.directions = self.directions[1:] + self.directions[:1]
 
         self.elf_coordinates = new_elf_coordinates
+
+        # Log the result of the round to confirm if moves were made
+        # print(f"Round result: any_moves = {any_moves}")
+
+        # Return True if any moves were made, otherwise False
+        return any_moves
 
     def calculate_empty_tiles(self):
         """Calculate the number of empty ground tiles in the bounding rectangle."""
@@ -102,19 +119,42 @@ class ElfSimulation:
                     row.append('#')  # Elf present
                 else:
                     row.append('.')  # Empty ground
-            print("".join(row))  # Print the row as a string
-        print()  # Add an empty line for spacing between rounds
+            # print("".join(row))  # Print the row as a string
+        # print()  # Add an empty line for spacing between rounds
 
-    def run_simulation(self, rounds):
-        for i in range(rounds):
-            print(f"== Round {i + 1} ==")
-            self.print_map()  # Print the map at the start of each round
-            self.simulate_round()
+    def run_simulation(self, max_rounds=1000, print_map=False):
+        for i in range(max_rounds):
+            if print_map:
+                print(f"== Round {i + 1} ==")
+                self.print_map()
+
+            any_moves = self.simulate_round()
+
+            if not any_moves:
+                # print(f"No moves occurred in round {i + 1}. Simulation stopped.")
+                return i + 1  # Return the number of rounds completed
 
         empty_tiles = self.calculate_empty_tiles()
-        print(f"Empty ground tiles after {rounds} rounds: {empty_tiles}")
+        # print(f"Empty ground tiles after {max_rounds} rounds: {empty_tiles}")
+        return max_rounds  # Return max_rounds if we didn't stop early
 
 
 if __name__ == "__main__":
-    simulation = ElfSimulation('input.txt')
-    simulation.run_simulation(10)
+    file_path = 'input.txt'
+    simulation = ElfSimulation(file_path)
+
+    # Part 1: Run 10 rounds and print the map
+    part1_rounds = simulation.run_simulation(max_rounds=10, print_map=False)
+    empty_tiles = simulation.calculate_empty_tiles()
+    print(f"Part 1: Empty ground tiles after {part1_rounds} rounds: {empty_tiles}")
+
+    # Reset the simulation for Part 2
+    simulation.reset()
+
+    # Part 2: Run up to 10000 rounds or until no moves occur, no map printing
+    part2_rounds = simulation.run_simulation(max_rounds=10000, print_map=False)
+    print(f"Part 2: First round with no moves: {part2_rounds}")
+
+    # Debug: Print final state
+    # print("Final state:")
+    simulation.print_map()
