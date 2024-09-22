@@ -21,3 +21,20 @@ we can populate a dictionary with lookup values for the basic equivalent and con
 
 4. **Handling Negative Digits**: The key difference with SNAFU is that it allows negative values for some digits. This means you might need to "borrow" from higher places, similar to how subtraction works with borrowing in normal base systems.
 
+## Implementation
+
+### SNAFU to digital conversion
+
+We loop through each digit of the SNAFU string, starting from the right.
+Each digit is converted to its decimal equivalent using powers of 5 and the lookup table (snafu_digit_map).
+
+### Decimal to SNAFU Conversion (decimal_to_snafu):
+
+We repeatedly divide the decimal number by 5 to extract the remainder.
+If the remainder is 3 or 4, we adjust by adding to the next place value and use = or - to represent negative values.
+We build the SNAFU string from the least significant to the most significant digit.
+
+### Summing the SNAFU numbers:
+
+The list of SNAFU numbers is first converted to decimal and summed.
+The result is converted back to SNAFU format and printed.
