@@ -34,7 +34,4 @@ I returned to this from September 2024, picking up where I left off, starting wi
 | [Day 22](https://adventofcode.com/2022/day/22) | [day-22](./2022/day-22) |
 | [Day 23](https://adventofcode.com/2022/day/23) | [day-23](./2022/day-23) |
 | [Day 24](https://adventofcode.com/2022/day/24) | [day-24](./2022/day-24) |
-
-To follow
-
 | [Day 25](https://adventofcode.com/2022/day/25) | [day-25](./2022/day-25) |
