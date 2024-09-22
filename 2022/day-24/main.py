@@ -30,10 +30,10 @@ class Valley:
         """ Wrap the position for blizzard movement """
         return (n - 1) % (maxn - 2) + 1
 
-    def bfs(self):
-        """ Perform the BFS-like search to find the shortest time """
-        current = [self.start]
-        time = 0
+    def bfs(self, start, goal, start_time):
+        """ Perform the BFS-like search to find the shortest time from start to goal """
+        current = [start]
+        time = start_time
 
         while True:
             next_positions = []
@@ -60,15 +60,39 @@ class Valley:
             # Sort and remove duplicates
             current = sorted(set(next_positions))
 
-            # If we reached the end, return the time
-            if self.end in current:
-                return time
+            # If we reached the goal, return the time (no need to add 1)
+            if goal in current:
+                return time  # Return the current minute without adding 1
 
             time += 1
+
+    def solve_part_1(self):
+        """ Solve Part 1 by finding the shortest path from start to goal """
+        return self.bfs(self.start, self.end, 0)
+
+    def solve_part_2(self):
+        """ Solve Part 2 by going to the goal, back to start, then to the goal again """
+        # First trip: from start to goal
+        time_to_goal = self.bfs(self.start, self.end, 0)
+
+        # Second trip: from goal back to start
+        time_back_to_start = self.bfs(self.end, self.start, time_to_goal)
+
+        # Third trip: from start to goal again
+        final_time_to_goal = self.bfs(self.start, self.end, time_back_to_start)
+
+        # Total time is the sum of all three trips
+        return final_time_to_goal
 
 
 if __name__ == "__main__":
     file_name = 'input.txt'
     valley = Valley(file_name)
-    minutes = valley.bfs()
-    print(f"Fewest number of minutes to reach the exit: {minutes}")
+
+    # Solve Part 1
+    minutes_part_1 = valley.solve_part_1()
+    print(f"Fewest number of minutes to reach the exit (Part 1): {minutes_part_1}")
+
+    # Solve Part 2
+    total_minutes_part_2 = valley.solve_part_2()
+    print(f"Fewest number of minutes to complete all trips (Part 2): {total_minutes_part_2}")
