@@ -20,42 +20,56 @@ number_map = {
 }
 
 
-def process_line(line, number_map):
-    line_numbers = []
-    i = 0  # Start from the first character
+def find_first_and_last_digit(line, number_map):
+    # Find the first valid digit from the left
+    first_digit = None
+    last_digit = None
+
+    # Scan from the left for the first digit
+    i = 0
     while i < len(line):
         if line[i].isdigit():
-            # If the current character is a digit, append the digit and move to the next character
-            line_numbers.append(int(line[i]))
-            i += 1
-        else:
-            match = None
-            for word in number_map:
-                if line.startswith(word, i):  # Check if the string starts with the word at position i
-                    match = word
-                    break
-            if match:
-                # If a match is found, append the corresponding number and move the index
-                line_numbers.append(number_map[match])
-                i += len(match)  # Skip past the matched substring
-            else:
-                # If no match, move to the next character
-                i += 1
-    return line_numbers
+            first_digit = int(line[i])
+            break
+        for word in number_map:
+            if line.startswith(word, i):
+                first_digit = number_map[word]
+                i += len(word) - 1  # Move the index past the matched word
+                break
+        if first_digit is not None:
+            break
+        i += 1
+
+    # Scan from the right for the last digit
+    i = len(line) - 1
+    while i >= 0:
+        if line[i].isdigit():
+            last_digit = int(line[i])
+            break
+        for word in number_map:
+            if line.startswith(word, i - len(word) + 1):
+                last_digit = number_map[word]
+                i -= len(word) - 1  # Move the index past the matched word
+                break
+        if last_digit is not None:
+            break
+        i -= 1
+
+    return first_digit, last_digit
 
 
 with open('input.txt', "r") as input_file:
-    file_numbers = []
-    first_last = 0
+    total_sum = 0
     for line in input_file:
         line = line.strip()  # Remove leading/trailing whitespace
-        line_numbers = process_line(line, number_map)
-        file_numbers.append(line_numbers)
-        first_last += int(str(line_numbers[0]) + str(line_numbers[-1]))  # Concatenate the first and last elements of the list as strings and convert to int for addition
-        print("line_numbers: ", line_numbers)  # debug
-        print(int(str(line_numbers[0]) + str(line_numbers[-1])))  # debug
-    # print(file_numbers)  # debug
+        first_digit, last_digit = find_first_and_last_digit(line, number_map)
 
-    print("part 2 solution: ", first_last)
+        if first_digit is not None and last_digit is not None:
+            calibration_value = int(f"{first_digit}{last_digit}")
+            total_sum += calibration_value
 
-    # 54412 is too low for part 2
+            # Debug output
+            # print(f"line: {line}, first_digit: {first_digit}, last_digit: {last_digit}, calibration_value: {calibration_value}")
+
+    # Final total for part 2 solution
+    print("part 2 solution: ", total_sum)
