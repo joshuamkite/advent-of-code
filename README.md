@@ -51,10 +51,10 @@ Commencing October 2024. These solutions are designed/architected before coding,
 | Brief | Solution | 
 | ----- | --------- |
 | [Day 1](https://adventofcode.com/2023/day/1)   | [day-01](./2023/day-01) |
+| [Day 2](https://adventofcode.com/2023/day/2)   | [day-02](./2023/day-02) | 
 
 To follow
 
-| [Day 2](https://adventofcode.com/2023/day/2)   | [day-02](./2023/day-02) | 
 | [Day 3](https://adventofcode.com/2023/day/3)   | [day-03](./2023/day-03) | 
 | [Day 4](https://adventofcode.com/2023/day/4)   | [day-04](./2023/day-04) | 
 | [Day 5](https://adventofcode.com/2023/day/5)   | [day-05](./2023/day-05) | 

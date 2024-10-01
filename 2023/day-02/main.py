@@ -32,6 +32,18 @@ class Game:
         }
         return max_values
 
+    def get_max_values_power(self):
+        max_values = {
+            'red': max(self.red) if self.red else None,
+            'green': max(self.green) if self.green else None,
+            'blue': max(self.blue) if self.blue else None
+        }
+        power = 1
+        for value in max_values.values():
+            if value:
+                power *= value
+        return power
+
     def is_possible_against_test_game(self, test_game):
         max_values = self.get_max_values()
         # Check if any value exceeds the test_game's corresponding value
@@ -72,3 +84,17 @@ for game in games_objects:
 
 
 print("Part 1 solution:", id_sum)
+
+
+# Part 2
+
+powersum = 0
+
+for game in games_objects:
+    # min_values = game.get_max_values()
+    # print(min_values)
+    get_max_values_power = game.get_max_values_power()
+    # print(get_max_values_power)
+    powersum += get_max_values_power
+
+print("Part 2 solution:", powersum)
