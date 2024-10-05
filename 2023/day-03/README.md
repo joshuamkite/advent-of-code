@@ -1,0 +1,1 @@
+Intitially I had some difficulty due to inadvertanetly parsing characters individually instead of as multi-digit numbers. Whilst working on this I decided to go for a deductive approach - idnetifying all the numbers and then removing those that were ineligible for part 1 solution.
